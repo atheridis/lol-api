@@ -2,7 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from lol_api import LeagueAPI, Server
-from lol_api.lol_exceptions import LoLException, NotFoundException
+from lol_api.lol_exceptions import LoLException, NotFound
 from lol_api.match_v5 import match_data, match_timeline
 from lol_api.summoner_v4 import Summoner
 
@@ -47,7 +47,7 @@ def test_summoner_ok_by_account_id(mock_get, summoner_v4_info) -> None:
 def test_summoner_not_found(mock_get) -> None:
     mock_get.return_value = Mock(status_code=404)
     api = LeagueAPI("example-key")
-    with pytest.raises(NotFoundException):
+    with pytest.raises(NotFound):
         api.get_summoner(Server.BR, "y")
 
 
@@ -70,7 +70,7 @@ def test_match_history_ok(mock_get, match_history_info) -> None:
 def test_match_history_not_found(mock_get) -> None:
     mock_get.return_value = Mock(status_code=404)
     api = LeagueAPI("example-key")
-    with pytest.raises(NotFoundException):
+    with pytest.raises(NotFound):
         api.get_match_history(Server.BR, "e")
 
 

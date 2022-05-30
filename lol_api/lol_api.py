@@ -3,7 +3,10 @@ from urllib.parse import urljoin
 
 import requests
 
-from .lol_exceptions import LoLException, NotFoundException
+from .lol_exceptions import (BadGateway, BadRequest, Forbidden, GatewayTimeout,
+                             InternalServerError, LoLException, NotAllowed,
+                             NotFound, RateLimitExceeded, ServiceUnavailable,
+                             Unauthorized, UnsupportedMediaType)
 from .match_v5.match_data import Match
 from .match_v5.match_timeline import MatchTimeline
 from .servers import Server
@@ -34,8 +37,28 @@ class LeagueAPI:
         )
         if response.status_code == 200:
             return response.json()
+        elif response.status_code == 400:
+            raise BadRequest()
+        elif response.status_code == 401:
+            raise Unauthorized()
+        elif response.status_code == 403:
+            raise Forbidden()
         elif response.status_code == 404:
-            raise NotFoundException()
+            raise NotFound()
+        elif response.status_code == 405:
+            raise NotAllowed()
+        elif response.status_code == 415:
+            raise UnsupportedMediaType()
+        elif response.status_code == 429:
+            raise RateLimitExceeded()
+        elif response.status_code == 500:
+            raise InternalServerError()
+        elif response.status_code == 502:
+            raise BadGateway()
+        elif response.status_code == 503:
+            raise ServiceUnavailable()
+        elif response.status_code == 504:
+            raise GatewayTimeout()
         else:
             raise LoLException()
 

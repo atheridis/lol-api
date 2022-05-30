@@ -71,6 +71,7 @@ class WardType(Enum):
     BLUE_TRINKET = "BLUE_TRINKET"
     SIGHT_WARD = "SIGHT_WARD"
     CONTROL_WARD = "CONTROL_WARD"
+    TEEMO_MUSHROOM = "TEEMO_MUSHROOM"
     UNDEFINED = "UNDEFINED"
 
 
@@ -465,7 +466,10 @@ class EventType(Enum):
 
     @staticmethod
     def create_event_from_data(data: dict) -> Event:
-        return EventType[data["type"]].value.from_dict(data)
+        try:
+            return EventType[data["type"]].value.from_dict(data)
+        except KeyError:
+            return EventType["UNDEFINED"].value.from_dict(data)
 
 
 @dataclass(frozen=True)
