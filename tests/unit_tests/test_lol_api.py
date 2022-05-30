@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 from lol_api import LeagueAPI, Server
 from lol_api.lol_exceptions import LoLException, NotFoundException
-from lol_api.match_v5 import Match, Metadata
+from lol_api.match_v5 import match_data, match_timeline
 from lol_api.summoner_v4 import Summoner
 
 
@@ -79,6 +79,16 @@ def test_match_data_ok(mock_get, match_data_info) -> None:
     mock_get.return_value = Mock(status_code=200)
     mock_get.return_value.json.return_value = match_data_info
     api = LeagueAPI("example-key")
-    match_data = api.get_match_data(Server.EUW, "match_id")
-    assert isinstance(match_data, Match)
-    assert isinstance(match_data.metadata, Metadata)
+    match = api.get_match_data(Server.EUW, "match_id")
+    assert isinstance(match, match_data.Match)
+    assert isinstance(match.metadata, match_data.Metadata)
+
+
+@patch("lol_api.lol_api.requests.get")
+def test_match_timeline_ok(mock_get, match_timeline_info) -> None:
+    mock_get.return_value = Mock(status_code=200)
+    mock_get.return_value.json.return_value = match_timeline_info
+    api = LeagueAPI("example-key")
+    match = api.get_match_timeline(Server.EUW, "match_id")
+    assert isinstance(match, match_timeline.MatchTimeline)
+    assert isinstance(match.metadata, match_timeline.Metadata)

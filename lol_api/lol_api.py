@@ -4,7 +4,8 @@ from urllib.parse import urljoin
 import requests
 
 from .lol_exceptions import LoLException, NotFoundException
-from .match_v5 import Match
+from .match_v5.match_data import Match
+from .match_v5.match_timeline import MatchTimeline
 from .servers import Server
 from .summoner_v4 import Summoner
 
@@ -99,3 +100,14 @@ class LeagueAPI:
         if not isinstance(response, dict):
             raise LoLException()
         return Match.from_dict(response)
+
+    def get_match_timeline(
+        self,
+        server: Server,
+        match_id: str,
+    ) -> MatchTimeline:
+        endpoint = f"/lol/match/v5/matches/{match_id}/timeline"
+        response = self._base_request(endpoint=endpoint, server=server, region=True)
+        if not isinstance(response, dict):
+            raise LoLException()
+        return MatchTimeline.from_dict(response)

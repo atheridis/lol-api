@@ -440,8 +440,3 @@ class Match:
             metadata=metadata,
             info=info,
         )
-
-
-# @dataclass(frozen=True)
-# class MatchTimeline:
-#     raise NotImplementedError()

@@ -22,3 +22,10 @@ def match_data_info():
     """Fixture that returns static match_history data in list format."""
     with open("tests/resources/match-v5.json") as f:
         return json.load(f)["match-data"]
+
+
+@pytest.fixture
+def match_timeline_info():
+    """Fixture that returns static match_history data in list format."""
+    with open("tests/resources/match-v5.json") as f:
+        return json.load(f)["match-timeline"]
