@@ -29,3 +29,21 @@ def test_match_v5_timeline_champion_kill(match_timeline_info) -> None:
         assert event.position == Position(6701, 6713)
     else:
         assert False
+
+
+def test_match_v5_timeline_participant_id_frames(match_timeline_info) -> None:
+    match_timeline = MatchTimeline.from_dict(match_timeline_info)
+    p_id = match_timeline.info.participants[2].participant_id
+    assert (
+        match_timeline.info.frames[10].participant_frames[p_id].participant_id == p_id
+    )
+
+
+def test_match_v5_timeline_participant_frames_stats(match_timeline_info) -> None:
+    match_timeline = MatchTimeline.from_dict(match_timeline_info)
+    assert isinstance(
+        match_timeline.info.frames[10]
+        .participant_frames[2]
+        .champion_stats.ability_power,
+        int,
+    )

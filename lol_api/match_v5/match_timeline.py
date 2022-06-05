@@ -95,6 +95,19 @@ class MonsterSubType(Enum):
     FIRE_DRAGON = "FIRE_DRAGON"
 
 
+class DragonSoulGivenType(Enum):
+    Mountain = "Mountain"
+    Cloud = "Cloud"
+    Hextech = "Hextech"
+    Ocean = "Ocean"
+    Infernal = "Infernal"
+
+
+class ChampionTransformType(Enum):
+    ASSASSIN = "ASSASSIN"
+    SLAYER = "SLAYER"
+
+
 @dataclass(frozen=True)
 class Participants:
     participant_id: int
@@ -408,6 +421,19 @@ class ObjectiveBountyPrestart(Event):
 
 
 @dataclass(frozen=True)
+class ObjectiveBountyFinish(Event):
+    team_id: int
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "ObjectiveBountyFinish":
+        return cls(
+            team_id=data["teamId"],
+            timestamp=data["timestamp"],
+            type=data["type"],
+        )
+
+
+@dataclass(frozen=True)
 class EliteMonsterKill(Event):
     assisting_participant_ids: list[int]
     bounty: int
@@ -438,6 +464,38 @@ class EliteMonsterKill(Event):
         )
 
 
+@dataclass(frozen=True)
+class DragonSoulGiven(Event):
+    name: DragonSoulGivenType
+    team_id: int
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "DragonSoulGiven":
+        name = DragonSoulGivenType[data["name"]]
+        return cls(
+            name=name,
+            team_id=data["teamId"],
+            timestamp=data["timestamp"],
+            type=data["type"],
+        )
+
+
+@dataclass(frozen=True)
+class ChampionTransform(Event):
+    participant_id: int
+    transform_type: ChampionTransformType
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "ChampionTransform":
+        transform_type = ChampionTransformType[data["transform_type"]]
+        return cls(
+            participant_id=data["participantId"],
+            transform_type=transform_type,
+            timestamp=data["timestamp"],
+            type=data["type"],
+        )
+
+
 class EventType(Enum):
     ITEM_UNDO = ItemUndo
     ITEM_SOLD = ItemSold
@@ -449,11 +507,14 @@ class EventType(Enum):
     WARD_PLACED = WardPlaced
     WARD_KILL = WardKill
     ELITE_MONSTER_KILL = EliteMonsterKill
+    DRAGON_SOUL_GIVEN = DragonSoulGiven
     CHAMPION_KILL = ChampionKill
     CHAMPION_SPECIAL_KILL = ChampionSpecialKill
     BUILDING_KILL = BuildingKill
     TURRET_PLATE_DESTROYED = TurretPlateDestroyed
     OBJECTIVE_BOUNTY_PRESTART = ObjectiveBountyPrestart
+    OBJECTIVE_BOUNTY_FINISH = ObjectiveBountyFinish
+    CHAMPION_TRANSFORM = ChampionTransform
     GAME_END = GameEnd
     UNDEFINED = Event
 
@@ -466,8 +527,9 @@ class EventType(Enum):
 
     @staticmethod
     def create_event_from_data(data: dict) -> Event:
+        data_type = data["type"]
         try:
-            return EventType[data["type"]].value.from_dict(data)
+            return EventType[data_type].value.from_dict(data)
         except KeyError:
             return EventType["UNDEFINED"].value.from_dict(data)
 
@@ -602,14 +664,14 @@ class ParticipantFrame:
 @dataclass(frozen=True)
 class Frame:
     events: list[Event]
-    participant_frames: dict[str, ParticipantFrame]
+    participant_frames: dict[int, ParticipantFrame]
     timestamp: int
 
     @classmethod
     def from_dict(cls, data: dict) -> "Frame":
         participant_frames = {}
         for k, v in data["participantFrames"].items():
-            participant_frames[k] = ParticipantFrame.from_dict(v)
+            participant_frames[int(k)] = ParticipantFrame.from_dict(v)
         events = [EventType.create_event_from_data(x) for x in data["events"]]
         return cls(
             events=events,
